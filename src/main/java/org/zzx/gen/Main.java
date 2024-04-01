@@ -63,7 +63,7 @@ public class Main {
         template.setEncoding(ENCODING);
 
         // 生成 Java 代码
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream("sys_user.sql"), ENCODING);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(tableInfo.getTableName() + ".sql"), ENCODING);
         template.process(tableInfo, outputStreamWriter);
     }
 
