@@ -8,10 +8,7 @@ import org.zzx.gen.entity.MetaInfo;
 import org.zzx.gen.entity.TableField;
 import org.zzx.gen.entity.TableInfo;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +60,12 @@ public class Main {
         template.setEncoding(ENCODING);
 
         // 生成 Java 代码
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(tableInfo.getTableName() + ".sql"), ENCODING);
-        template.process(tableInfo, outputStreamWriter);
+        /*OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(tableInfo.getTableName() + ".sql"), ENCODING);
+        template.process(tableInfo, outputStreamWriter);*/
+        Writer out = new StringWriter();
+        template.process(tableInfo, out);
+        out.flush();
+        System.out.println(out.toString());
     }
 
     /**
