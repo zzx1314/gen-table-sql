@@ -1,9 +1,7 @@
 package org.zzx.gen.netty;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import cn.hutool.setting.dialect.Props;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -12,9 +10,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import org.zzx.gen.util.HttpServerResponseUtil;
 import org.zzx.gen.util.RequestParamUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
     Log log = LogFactory.get();
@@ -38,8 +33,8 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private void service(ChannelHandlerContext ctx ) {
         switch (requestUrlHandler(request.uri())){
-            case "/updateFlinkConfig":
-                log.info("handleFlinkConfig");
+            case "/setDbConfig":
+                log.info("setDbConfig---");
                 // 解析参数
                 RequestParamUtil param = new RequestParamUtil(request, httpContent);
                 HttpServerResponseUtil.reponse(ctx, "error");

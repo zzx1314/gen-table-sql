@@ -95,6 +95,64 @@
                 </includes>
             </testResource>
         </testResources>
+
+        <plugins>
+            <!--打包插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <finalName>${project.name}-${project.version}</finalName>
+                    <archive>
+                        <manifest>
+                            <!-- 指定主类 -->
+                            <mainClass>org.zzx.gen.Application</mainClass>
+                            <!-- 添加依赖到classpath -->
+                            <addClasspath>true</addClasspath>
+                            <useUniqueVersions>false</useUniqueVersions>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgs>
+                        <arg>-XDignore.symbol.file</arg>
+                    </compilerArgs>
+                    <fork>true</fork>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- 生成的包名称不追加描述文件中定义的ID -->
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <!-- 指定最终文件名 -->
+                    <finalName>${project.name}-${project.version}</finalName>
+                    <descriptors>
+                        <descriptor>src/pkg/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+
+        </plugins>
     </build>
 
 </project>
