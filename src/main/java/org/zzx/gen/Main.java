@@ -4,13 +4,19 @@ import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.zzx.gen.entity.DbInfo;
 import org.zzx.gen.entity.MetaInfo;
 import org.zzx.gen.entity.TableField;
 import org.zzx.gen.entity.TableInfo;
+import org.zzx.gen.util.DbUtil;
 
 import java.io.*;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,6 +72,24 @@ public class Main {
         template.process(tableInfo, out);
         out.flush();
         System.out.println(out.toString());
+
+        DbInfo dbInfo = new DbInfo();
+        dbInfo.setDriver("com.mysql.cj.jdbc.Driver");
+        dbInfo.setUrl("jdbc:mysql://127.0.0.1:3306/th_test?characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=GMT%2B8");
+        dbInfo.setUserName("root");
+        dbInfo.setPassword("123456");
+
+        Class.forName(dbInfo.getDriver()).newInstance();
+        Connection conn = DriverManager.getConnection(dbInfo.getUrl(), dbInfo.getUserName(), dbInfo.getPassword());
+        Statement statement = conn.createStatement();
+
+        List<String> sqlList= Arrays.asList(out.toString().split(";\\n"));
+        for (String sql : sqlList){
+            int i = statement.executeUpdate(sql);
+        }
+        statement.close();
+        conn.close();
+
     }
 
     /**
