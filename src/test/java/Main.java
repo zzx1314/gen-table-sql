@@ -1,5 +1,3 @@
-package org.zzx.gen;
-
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -8,9 +6,10 @@ import org.zzx.gen.entity.DbInfo;
 import org.zzx.gen.entity.MetaInfo;
 import org.zzx.gen.entity.TableField;
 import org.zzx.gen.entity.TableInfo;
-import org.zzx.gen.util.DbUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;

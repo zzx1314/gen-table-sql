@@ -1,0 +1,55 @@
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3">
+    <id>package</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <!-- 不包含根目录 -->
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <fileSets>
+        <!-- 指定运行目录 -->
+        <fileSet>
+            <directory>src/pkg/</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>start.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+            <lineEnding>unix</lineEnding>
+            <!-- 过滤文件中的maven变量为maven值 -->
+            <filtered>true</filtered>
+        </fileSet>
+        <!-- 指定可配置文件到conf目录 -->
+        <fileSet>
+            <directory>${project.build.directory}/classes</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>*.properties</include>
+            </includes>
+        </fileSet>
+        <!--指定jvm配置文件到conf目录-->
+        <fileSet>
+            <directory>src/pkg/</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>jvm.conf</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>target/${project.name}-${project.version}.jar</source>
+            <outputDirectory>lib</outputDirectory>
+        </file>
+    </files>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <!-- 指定依赖存放的位置 -->
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>
