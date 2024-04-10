@@ -28,12 +28,24 @@ public class HttpServerResponseUtil {
                 " \"msg\": \"请求成功\"\n" +
                 "}";
 
+        String sendSucessOtherMsg =  "{\n" +
+                " \"status\": 200,\n" +
+                " \"msg\": \"请求成功,\"\n" +
+                " \"data\": ${data}\n" +
+                "}";
+
         String sendErrorMsg =  "{\n" +
                 " \"status\": 500,\n" +
                 " \"msg\": \"请求失败\"\n" +
                 "}";
-        String sendResult = content.equals("success")? sendSucessMsg: sendErrorMsg;
-
+        String sendResult = "";
+        if ( content.equals("success")) {
+            sendResult = sendSucessMsg;
+        } else if ( content.equals("error")){
+            sendResult = sendErrorMsg;
+        } else {
+            sendResult = sendSucessOtherMsg.replace("${data}",content);
+        }
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK,
