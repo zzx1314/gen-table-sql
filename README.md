@@ -1,5 +1,5 @@
 # 使用模版生成建表语句
- 这是一个轻量级的建表语句的工具。使用到的包有一下
+ 这是一个轻量级的建表语句的工具。使用到的包如下
  * freemarker
  * lombok
  * mysql-connector-java
