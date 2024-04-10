@@ -1,5 +1,7 @@
 package org.zzx.gen.service;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -19,6 +21,21 @@ import java.util.List;
 import java.util.Locale;
 
 public class GenService {
+    Log log = LogFactory.get();
+    private static final GenService INSTANCE = new GenService();
+
+    private static final DbInfo DB_INFO = new DbInfo();
+    private GenService() {
+    }
+
+    public static GenService getInstance() {
+        return INSTANCE;
+    }
+
+    public static DbInfo getDBInfo() {
+        return DB_INFO;
+    }
+
     /**
      * 获取数据库连接
      */
@@ -37,10 +54,16 @@ public class GenService {
             Connection connection = this.getConnection(dbInfo);
             if (connection != null) {
                 connection.close();
+                log.info("连接成功！");
+                DB_INFO.setUrl(dbInfo.getUrl());
+                DB_INFO.setDriver(dbInfo.getDriver());
+                DB_INFO.setUserName(dbInfo.getUserName());
+                DB_INFO.setPassword(dbInfo.getPassword());
                 return true;
             }
         } catch (Exception e){
             e.printStackTrace();
+            log.info("连接失败！");
             return false;
         }
         return false;

@@ -7,9 +7,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import org.zzx.gen.entity.DbInfo;
+import org.zzx.gen.service.GenService;
 import org.zzx.gen.util.HTLMContentUtil;
 import org.zzx.gen.util.HttpServerResponseUtil;
 import org.zzx.gen.util.RequestParamUtil;
+
+import java.util.List;
+import java.util.Map;
 
 
 public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
@@ -48,8 +53,12 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 String contex = HTLMContentUtil.load("static/dist/index.html");
                 HttpServerResponseUtil.httpRepose(ctx, contex, "text/html;charset=UTF-8");
                 break;
-            case "/setDbConfig":
-                log.info("setDbConfig---");
+            case "/testConnection":
+                log.info("测试数据库连接");
+                testConService(ctx);
+                break;
+            case "/genSqlTable":
+                log.info("生成sql表");
                 // 解析参数
                 RequestParamUtil param = new RequestParamUtil(request, httpContent);
                 HttpServerResponseUtil.reponse(ctx, "error");
@@ -58,6 +67,26 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 log.info("default");
                 HttpServerResponseUtil.reponse(ctx, "success");
                 break;
+        }
+    }
+
+    private void testConService(ChannelHandlerContext ctx) {
+        GenService genService = GenService.getInstance();
+
+        DbInfo dbInfo = new DbInfo();
+        RequestParamUtil conParam = new RequestParamUtil(request, httpContent);
+        Map<String, List<String>> params = conParam.getParams();
+
+        dbInfo.setDriver(params.get("driver").get(0));
+        dbInfo.setUrl(params.get("url").get(0));
+        dbInfo.setUserName(params.get("userName").get(0));
+        dbInfo.setPassword(params.get("password").get(0));
+
+        Boolean testResult = genService.testConnection(dbInfo);
+        if (testResult){
+            HttpServerResponseUtil.reponse(ctx, "success");
+        } else {
+            HttpServerResponseUtil.reponse(ctx, "error");
         }
     }
 

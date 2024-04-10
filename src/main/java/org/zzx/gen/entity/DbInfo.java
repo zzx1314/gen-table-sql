@@ -12,5 +12,4 @@ public class DbInfo {
     private String url;
     private String userName;
     private String password;
-    private String dbName;
 }

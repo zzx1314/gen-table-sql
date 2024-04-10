@@ -30,6 +30,9 @@ public class Application {
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new MyChannelInitializer());
             ChannelFuture f = b.bind(port).sync();
+
+            log.info("数据库表更新服务启动成功---");
+            log.info("前端请访问地址：http://127.0.0.1:7397/index");
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -37,8 +40,6 @@ public class Application {
             childGroup.shutdownGracefully();
             parentGroup.shutdownGracefully();
         }
-        log.info("数据库表更新服务启动成功---");
-        log.info("前端请访问地址：http://127.0.0.1:7397/index");
     }
 
 }
