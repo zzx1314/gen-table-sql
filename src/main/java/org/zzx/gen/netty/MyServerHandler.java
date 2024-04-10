@@ -1,5 +1,6 @@
 package org.zzx.gen.netty;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -95,12 +96,12 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
 
         DbInfo dbInfo = new DbInfo();
         RequestParamUtil conParam = new RequestParamUtil(request, httpContent);
-        Map<String, List<String>> params = conParam.getParams();
+        JSONObject paramsJson = conParam.getParamsJson();
 
-        dbInfo.setDriver(params.get("driver").get(0));
-        dbInfo.setUrl(params.get("url").get(0));
-        dbInfo.setUserName(params.get("userName").get(0));
-        dbInfo.setPassword(params.get("password").get(0));
+        dbInfo.setDriver(paramsJson.getStr("driver"));
+        dbInfo.setUrl(paramsJson.getStr("url"));
+        dbInfo.setUserName(paramsJson.getStr("userName"));
+        dbInfo.setPassword(paramsJson.getStr("password"));
 
         Boolean testResult = genService.testConnection(dbInfo);
         if (testResult){
