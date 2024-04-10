@@ -73,6 +73,12 @@
             <artifactId>hutool-log</artifactId>
             <version>5.8.26</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-json</artifactId>
+            <version>5.8.26</version>
+        </dependency>
     </dependencies>
 
     <build>

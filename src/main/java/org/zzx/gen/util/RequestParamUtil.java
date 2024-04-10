@@ -1,5 +1,7 @@
 package org.zzx.gen.util;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.handler.codec.http.*;
@@ -23,6 +25,8 @@ public class RequestParamUtil {
     private HttpContent content;
 
     private Map<String, List<String>> params = new HashMap<>();
+
+    private JSONObject paramsJson = new JSONObject();;
 
     public RequestParamUtil(HttpRequest request, HttpContent content) {
         this.request = request;
@@ -59,7 +63,9 @@ public class RequestParamUtil {
             //接收msg消息
             byte[] msgByte = new byte[byteData.readableBytes()];
             byteData.readBytes(msgByte);
-            System.out.println(new String(msgByte, Charset.forName("UTF-8")));
+            String parm = new String(msgByte, Charset.forName("UTF-8"));
+            JSONObject jsonObject = JSONUtil.parseObj(parm);
+            paramsJson = jsonObject;
         }
     }
 
@@ -110,5 +116,9 @@ public class RequestParamUtil {
      */
     public  Map<String, List<String>> getParams(){
         return this.params;
+    }
+
+    public JSONObject getParamsJson(){
+        return this.paramsJson;
     }
 }

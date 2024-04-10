@@ -1,5 +1,6 @@
 package org.zzx.gen.netty;
 
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import io.netty.channel.ChannelHandlerContext;
@@ -76,18 +77,15 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private void execuSqlInDbService(ChannelHandlerContext ctx) throws Exception {
-        RequestParamUtil paramDb = new RequestParamUtil(request, httpContent);
-
         GenService genService = GenService.getInstance();
         genService.execuSqlInDb();
-
         HttpServerResponseUtil.reponse(ctx, "success");
     }
 
     private void genSqlTableService(ChannelHandlerContext ctx) throws Exception {
         RequestParamUtil param = new RequestParamUtil(request, httpContent);
         GenService genService = GenService.getInstance();
-        TableInfo tableInfo = new TableInfo();
+        TableInfo tableInfo = JSONUtil.toBean(param.getParamsJson(), TableInfo.class);
         String genResult = genService.gen(tableInfo, "table.sql.ftl");
         HttpServerResponseUtil.reponse(ctx, genResult);
     }
