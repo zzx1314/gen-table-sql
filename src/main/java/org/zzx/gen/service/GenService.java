@@ -25,6 +25,9 @@ public class GenService {
     private static final GenService INSTANCE = new GenService();
 
     private static final DbInfo DB_INFO = new DbInfo();
+
+    private static String sqlP = "";
+
     private GenService() {
     }
 
@@ -72,9 +75,8 @@ public class GenService {
      * @param tableInfo        传递到模板中的数据
      * @param useTemplateName 模版名称
      */
-    public void gen(TableInfo tableInfo, String useTemplateName,DbInfo dbInfo) throws Exception {
+    public String gen(TableInfo tableInfo, String useTemplateName) throws Exception {
         final String ENCODING = "UTF-8";
-
         // 指定模板存放的路径
         TemplateLoader loader = new FileTemplateLoader(new File(getTemplatePath(useTemplateName)));
         // 指定配置
@@ -93,19 +95,19 @@ public class GenService {
         template.process(tableInfo, out);
         out.flush();
         System.out.println(out.toString());
+        sqlP = out.toString();
+        return out.toString();
+    }
 
-       /* DbInfo dbInfo = new DbInfo();
-        dbInfo.setDriver("com.mysql.cj.jdbc.Driver");
-        dbInfo.setUrl("jdbc:mysql://127.0.0.1:3306/th_test?characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=GMT%2B8");
-        dbInfo.setUserName("root");
-        dbInfo.setPassword("123456");*/
-
-
-        Connection conn =  this.getConnection(dbInfo);
+    /**
+     * 在数据库中执行sql
+     */
+    public void execuSqlInDb() throws Exception {
+        Connection conn = this.getConnection(DB_INFO);
         Statement statement = conn.createStatement();
 
-        List<String> sqlList= Arrays.asList(out.toString().split(";\\n"));
-        for (String sql : sqlList){
+        List<String> sqlList = Arrays.asList(sqlP.split(";\\n"));
+        for (String sql : sqlList) {
             int i = statement.executeUpdate(sql);
         }
         statement.close();

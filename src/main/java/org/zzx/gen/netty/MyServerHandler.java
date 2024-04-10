@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import org.zzx.gen.entity.DbInfo;
+import org.zzx.gen.entity.TableInfo;
 import org.zzx.gen.service.GenService;
 import org.zzx.gen.util.HTLMContentUtil;
 import org.zzx.gen.util.HttpServerResponseUtil;
@@ -37,7 +38,7 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
         }
     }
 
-    private void service(ChannelHandlerContext ctx ) {
+    private void service(ChannelHandlerContext ctx ) throws Exception {
         switch (requestUrlHandler(request.uri())){
             case "assets":
                 log.info("请求静态资源");
@@ -58,16 +59,37 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 testConService(ctx);
                 break;
             case "/genSqlTable":
-                log.info("生成sql表");
+                log.info("通过模板生成sql表");
                 // 解析参数
-                RequestParamUtil param = new RequestParamUtil(request, httpContent);
-                HttpServerResponseUtil.reponse(ctx, "error");
+                genSqlTableService(ctx);
+                break;
+            case "/execuSqlInDb":
+                log.info("将生成的sql在数据库中运行");
+                // 解析参数
+                execuSqlInDbService(ctx);
                 break;
             default:
                 log.info("default");
                 HttpServerResponseUtil.reponse(ctx, "success");
                 break;
         }
+    }
+
+    private void execuSqlInDbService(ChannelHandlerContext ctx) throws Exception {
+        RequestParamUtil paramDb = new RequestParamUtil(request, httpContent);
+
+        GenService genService = GenService.getInstance();
+        genService.execuSqlInDb();
+
+        HttpServerResponseUtil.reponse(ctx, "success");
+    }
+
+    private void genSqlTableService(ChannelHandlerContext ctx) throws Exception {
+        RequestParamUtil param = new RequestParamUtil(request, httpContent);
+        GenService genService = GenService.getInstance();
+        TableInfo tableInfo = new TableInfo();
+        String genResult = genService.gen(tableInfo, "table.sql.ftl");
+        HttpServerResponseUtil.reponse(ctx, genResult);
     }
 
     private void testConService(ChannelHandlerContext ctx) {
