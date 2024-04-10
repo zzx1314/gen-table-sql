@@ -19,7 +19,6 @@ public class Application {
     }
 
     private void bing(int port) {
-        log.info("数据库表更新服务启动成功---");
         //配置服务端NIO线程组
         EventLoopGroup parentGroup = new NioEventLoopGroup();
         EventLoopGroup childGroup = new NioEventLoopGroup();
@@ -38,6 +37,8 @@ public class Application {
             childGroup.shutdownGracefully();
             parentGroup.shutdownGracefully();
         }
+        log.info("数据库表更新服务启动成功---");
+        log.info("前端请访问地址：http://127.0.0.1:7397/index");
     }
 
 }
