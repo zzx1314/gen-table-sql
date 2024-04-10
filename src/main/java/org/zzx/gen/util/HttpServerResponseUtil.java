@@ -1,13 +1,26 @@
 package org.zzx.gen.util;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.util.CharsetUtil;
 
 import java.nio.charset.Charset;
 
 public class HttpServerResponseUtil {
+
+    public static void httpRepose(ChannelHandlerContext ctx,String content, String type){
+        ByteBuf buf = Unpooled.copiedBuffer(content, CharsetUtil.UTF_8);
+        DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);//构建HTTP响应
+
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, type); // 响应编码
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+
     public static void reponse(ChannelHandlerContext ctx,String content){
 
         String sendSucessMsg =  "{\n" +
