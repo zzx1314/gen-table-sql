@@ -70,6 +70,10 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 // 解析参数
                 execuSqlInDbService(ctx);
                 break;
+            case "/getDbInfo":
+                log.info("获取数据库信息");
+                HttpServerResponseUtil.reponse(ctx, GenService.getDBInfo());
+                break;
             default:
                 log.info("default");
                 HttpServerResponseUtil.reponse(ctx, "success");

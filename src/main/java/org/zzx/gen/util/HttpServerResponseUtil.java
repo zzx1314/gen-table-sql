@@ -23,7 +23,7 @@ public class HttpServerResponseUtil {
     }
 
 
-    public static void reponse(ChannelHandlerContext ctx,String content){
+    public static void reponse(ChannelHandlerContext ctx,Object content){
         JSONObject result = new JSONObject();
         if ( content.equals("success")) {
             result.putOnce("status",200);
