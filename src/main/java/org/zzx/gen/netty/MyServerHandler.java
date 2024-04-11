@@ -4,11 +4,14 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.zzx.gen.entity.DbInfo;
 import org.zzx.gen.entity.TableInfo;
 import org.zzx.gen.service.GenService;
@@ -16,8 +19,7 @@ import org.zzx.gen.util.HTLMContentUtil;
 import org.zzx.gen.util.HttpServerResponseUtil;
 import org.zzx.gen.util.RequestParamUtil;
 
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
 
 
 public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
@@ -27,6 +29,8 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private HttpContent httpContent;
 
+    private ByteArrayOutputStream responseContent;
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -35,12 +39,21 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
         }
         if (msg instanceof HttpContent) {
             this.httpContent = (HttpContent) msg;
-
-            this.service(ctx);
+            ByteBuf buffer = httpContent.content();
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.readBytes(bytes);
+            responseContent.write(bytes);
+        }
+        if (msg instanceof LastHttpContent) {
+            ByteBuf buffer = Unpooled.wrappedBuffer(responseContent.toByteArray());
+            // 处理完整的请求体
+            service(ctx, buffer);
+            // 清理资源
+            responseContent.reset();
         }
     }
 
-    private void service(ChannelHandlerContext ctx ) throws Exception {
+    private void service(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
         switch (requestUrlHandler(request.uri())){
             case "assets":
                 log.info("请求静态资源");
@@ -58,12 +71,12 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 break;
             case "/testConnection":
                 log.info("测试数据库连接");
-                testConService(ctx);
+                testConService(ctx, buf);
                 break;
             case "/genSqlTable":
                 log.info("通过模板生成sql表");
                 // 解析参数
-                genSqlTableService(ctx);
+                genSqlTableService(ctx, buf);
                 break;
             case "/execuSqlInDb":
                 log.info("将生成的sql在数据库中运行");
@@ -87,19 +100,19 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
         HttpServerResponseUtil.reponse(ctx, "success");
     }
 
-    private void genSqlTableService(ChannelHandlerContext ctx) throws Exception {
-        RequestParamUtil param = new RequestParamUtil(request, httpContent);
+    private void genSqlTableService(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+        RequestParamUtil param = new RequestParamUtil(request, httpContent, buf);
         GenService genService = GenService.getInstance();
         TableInfo tableInfo = JSONUtil.toBean(param.getParamsJson(), TableInfo.class);
         String genResult = genService.gen(tableInfo, "table.sql.ftl");
         HttpServerResponseUtil.reponse(ctx, genResult);
     }
 
-    private void testConService(ChannelHandlerContext ctx) {
+    private void testConService(ChannelHandlerContext ctx, ByteBuf buf) {
         GenService genService = GenService.getInstance();
 
         DbInfo dbInfo = new DbInfo();
-        RequestParamUtil conParam = new RequestParamUtil(request, httpContent);
+        RequestParamUtil conParam = new RequestParamUtil(request, httpContent, buf);
         JSONObject paramsJson = conParam.getParamsJson();
 
         dbInfo.setDriver(paramsJson.getStr("driver"));
@@ -139,6 +152,11 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
         cause.printStackTrace();
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        responseContent = new ByteArrayOutputStream();
     }
 
 }

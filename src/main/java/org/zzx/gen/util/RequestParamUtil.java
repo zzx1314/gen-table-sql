@@ -4,6 +4,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.EmptyByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -26,15 +27,15 @@ public class RequestParamUtil {
 
     private Map<String, List<String>> params = new HashMap<>();
 
-    private JSONObject paramsJson = new JSONObject();;
+    private JSONObject paramsJson = new JSONObject();
 
-    public RequestParamUtil(HttpRequest request, HttpContent content) {
+    public RequestParamUtil(HttpRequest request,HttpContent content, ByteBuf buf) {
         this.request = request;
         this.content = content;
-        this.parse();
+        this.parse(buf);
     }
 
-    private void parse() {
+    private void parse(ByteBuf buf) {
         if (HttpMethod.GET == request.method()) {
             QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
             this.params.putAll(decoder.parameters());
@@ -46,7 +47,7 @@ public class RequestParamUtil {
             if ("application/x-www-form-urlencoded".equals(contentType)){
                 handlerForm();
             } else if ("application/json".equals(contentType)){
-                handlerJson();
+                handlerJson(buf);
             } else {
                 // 其他格式的参数
             }
@@ -56,14 +57,14 @@ public class RequestParamUtil {
     /**
      * 处理json数据
      */
-    private void handlerJson() {
-        LastHttpContent httpContent = (LastHttpContent) content;
-        ByteBuf byteData = httpContent.content();
+    private void handlerJson(ByteBuf byteData) {
         if (!(byteData instanceof EmptyByteBuf)) {
             //接收msg消息
             byte[] msgByte = new byte[byteData.readableBytes()];
             byteData.readBytes(msgByte);
+
             String parm = new String(msgByte, Charset.forName("UTF-8"));
+            System.out.println(parm);
             JSONObject jsonObject = JSONUtil.parseObj(parm);
             paramsJson = jsonObject;
         }
