@@ -1,5 +1,7 @@
 package org.zzx.gen.util;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -22,34 +24,22 @@ public class HttpServerResponseUtil {
 
 
     public static void reponse(ChannelHandlerContext ctx,String content){
-
-        String sendSucessMsg =  "{\n" +
-                " \"status\": 200,\n" +
-                " \"msg\": \"请求成功\"\n" +
-                "}";
-
-        String sendSucessOtherMsg =  "{\n" +
-                " \"status\": 200,\n" +
-                " \"msg\": \"请求成功,\"\n" +
-                " \"data\": ${data}\n" +
-                "}";
-
-        String sendErrorMsg =  "{\n" +
-                " \"status\": 500,\n" +
-                " \"msg\": \"请求失败\"\n" +
-                "}";
-        String sendResult = "";
+        JSONObject result = new JSONObject();
         if ( content.equals("success")) {
-            sendResult = sendSucessMsg;
+            result.putOnce("status",200);
+            result.putOnce("msg","请求成功");
         } else if ( content.equals("error")){
-            sendResult = sendErrorMsg;
+            result.putOnce("status",500);
+            result.putOnce("msg","请求失败");
         } else {
-            sendResult = sendSucessOtherMsg.replace("${data}",content);
+            result.putOnce("status", 200);
+            result.putOnce("msg", "请求成功");
+            result.putOnce("data",content);
         }
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(sendResult.getBytes(Charset.forName("UTF-8"))));
+                Unpooled.wrappedBuffer(JSONUtil.toJsonStr(result).getBytes(Charset.forName("UTF-8"))));
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
         response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
