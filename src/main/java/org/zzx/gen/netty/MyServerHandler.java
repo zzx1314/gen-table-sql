@@ -112,11 +112,15 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private String requestUrlHandler(String requestUrl) {
-        if (requestUrl.contains("?")) {
-            return requestUrl.substring(0, requestUrl.indexOf("?"));
+        String resultUrl = requestUrl;
+        if (requestUrl.contains("/api")) {
+            resultUrl =  requestUrl.substring(requestUrl.indexOf("/api") + 4);
         }
-        if (requestUrl.contains(".js") || requestUrl.contains(".css")) {
-            String url = requestUrl.split("/")[1];
+        if (resultUrl.contains("?")) {
+            return resultUrl.substring(0, requestUrl.indexOf("?"));
+        }
+        if (resultUrl.contains(".js") || resultUrl.contains(".css")) {
+            String url = resultUrl.split("/")[1];
             return url;
         }
         return requestUrl;
