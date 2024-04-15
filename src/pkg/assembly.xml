@@ -15,6 +15,7 @@
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>start.sh</include>
+                <include>start.bat</include>
             </includes>
             <fileMode>755</fileMode>
             <lineEnding>unix</lineEnding>
