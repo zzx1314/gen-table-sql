@@ -18,6 +18,7 @@ import org.zzx.gen.service.GenService;
 import org.zzx.gen.util.HTLMContentUtil;
 import org.zzx.gen.util.HttpServerResponseUtil;
 import org.zzx.gen.util.RequestParamUtil;
+import org.zzx.gen.util.TransApi;
 
 import java.io.ByteArrayOutputStream;
 
@@ -87,11 +88,29 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
                 log.info("获取数据库信息");
                 HttpServerResponseUtil.reponse(ctx, GenService.getDBInfo());
                 break;
+            case "/translateWord":
+                log.info("翻译");
+                translateWord(ctx, buf);
+                break;
             default:
                 log.info("default");
                 HttpServerResponseUtil.reponse(ctx, "success");
                 break;
         }
+    }
+
+    private void translateWord(ChannelHandlerContext ctx, ByteBuf buf) {
+        RequestParamUtil param = new RequestParamUtil(request, httpContent, buf);
+        String word = param.getParamOne("word");
+        TransApi api = new TransApi("20240418002028164", "x9AgFqcsTQlUDXPs2qre");
+        String transResult = api.getTransResult(word, "auto", "en");
+        JSONObject tranResult = JSONUtil.parseObj(transResult);
+        if (tranResult.get("trans_result") != null){
+            JSONObject transResultJson = JSONUtil.parseArray(tranResult.get("trans_result")).getJSONObject(0);
+            String dst = transResultJson.get("dst").toString();
+            HttpServerResponseUtil.reponse(ctx, dst);
+        }
+        HttpServerResponseUtil.reponse(ctx, word);
     }
 
     private void execuSqlInDbService(ChannelHandlerContext ctx) throws Exception {
