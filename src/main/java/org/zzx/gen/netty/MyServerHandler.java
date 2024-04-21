@@ -105,6 +105,7 @@ public class MyServerHandler extends SimpleChannelInboundHandler<Object> {
         TransApi api = new TransApi("20240418002028164", "x9AgFqcsTQlUDXPs2qre");
         String transResult = api.getTransResult(word, "auto", "en");
         JSONObject tranResult = JSONUtil.parseObj(transResult);
+        log.info("翻译结果："+ JSONUtil.toJsonStr(transResult));
         if (tranResult.get("trans_result") != null){
             JSONObject transResultJson = JSONUtil.parseArray(tranResult.get("trans_result")).getJSONObject(0);
             String dst = transResultJson.get("dst").toString();
